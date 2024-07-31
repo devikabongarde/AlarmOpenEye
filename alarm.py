@@ -1,6 +1,6 @@
 import cv2
 import time
-from playsound import playsound
+import pygame
 
 def detect_eyes(frame):
     # Load the pre-trained Haar Cascade for eye detection
@@ -12,16 +12,25 @@ def detect_eyes(frame):
     return len(eyes) > 0
 
 def play_alarm():
-    # Path to your alarm sound file
-    sound_file = 'alarm.mp3'
-    playsound(sound_file)
+    # Initialize pygame mixer
+    pygame.mixer.init()
+    # Load the sound file
+    pygame.mixer.music.load('alarmring.mp3')
+    # Play the sound
+    pygame.mixer.music.play(-1)  # -1 means loop indefinitely
+
+def stop_alarm():
+    # Stop the alarm sound
+    pygame.mixer.music.stop()
 
 def main():
     # Set the time for the alarm
-    alarm_time = "07:00"  # Change this to your desired alarm time
+    alarm_time = "01:53"  # Change this to your desired alarm time
+    print("Alarm set for", alarm_time)
 
     while True:
         current_time = time.strftime("%H:%M")
+        print("Current time:", current_time)
         if current_time == alarm_time:
             print("Alarm ringing...")
             play_alarm()
@@ -34,8 +43,11 @@ def main():
                     break
 
                 if detect_eyes(frame):
-                    print("Eyes detected. Alarm stopped.")
+                    print("Open eyes detected. Alarm stopped.")
+                    stop_alarm()
                     break
+                else:
+                    print("No open eyes detected. Alarm continues...")
 
                 # Display the frame (for debugging purposes)
                 cv2.imshow('Alarm', frame)
