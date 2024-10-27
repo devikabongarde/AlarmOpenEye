@@ -1,64 +1,60 @@
-import cv2
 import time
+import cv2
 import pygame
+from kivy.app import App
+from kivy.uix.label import Label
+from kivy.clock import Clock
 
-def detect_eyes(frame):
-    
-    eye_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_eye.xml')
+class AlarmApp(App):
+    def build(self):
+        return self.root
 
-    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-    eyes = eye_cascade.detectMultiScale(gray, scaleFactor=1.1, minNeighbors=5, minSize=(30, 30))
+    def detect_eyes(self, frame):
+        eye_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_eye.xml')
+        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+        eyes = eye_cascade.detectMultiScale(gray, scaleFactor=1.1, minNeighbors=5, minSize=(30, 30))
+        return len(eyes) > 0
 
-    return len(eyes) > 0
+    def play_alarm(self):
+        pygame.mixer.init()
+        pygame.mixer.music.load('alarmring.mp3')
+        pygame.mixer.music.play(-1)
 
-def play_alarm():
- 
-    pygame.mixer.init()
-   
-    pygame.mixer.music.load('alarmring.mp3')
-  
-    pygame.mixer.music.play(-1) 
+    def stop_alarm(self):
+        pygame.mixer.music.stop()
 
-def stop_alarm():
- 
-    pygame.mixer.music.stop()
+    def start_alarm(self, alarm_time):
+        self.alarm_time = alarm_time
+        self.root.ids.status_label.text = f"Alarm set for {self.alarm_time}"
+        Clock.schedule_interval(self.check_time, 1)
 
-def main():
-    
-    alarm_time = input("Enter the alarm time in HH:MM format (24-hour clock): ") 
-    print("Alarm set for", alarm_time)
-
-    while True:
+    def check_time(self, dt):
         current_time = time.strftime("%H:%M")
-        print("Current time:", current_time)
-        if current_time == alarm_time:
-            print("Alarm ringing...")
-            play_alarm()
-            
-            # Initialize webcam
-            cap = cv2.VideoCapture(0)
-            while True:
-                ret, frame = cap.read()
-                if not ret:
-                    break
+        if current_time == self.alarm_time:
+            self.root.ids.status_label.text = "Alarm ringing..."
+            self.play_alarm()
+            Clock.unschedule(self.check_time)
+            self.activate_webcam()
 
-                if detect_eyes(frame):
-                    print("Open eyes detected. Alarm stopped.")
-                    stop_alarm()
-                    break
-                else:
-                    print("No open eyes detected. Alarm continues...")
+    def activate_webcam(self):
+        cap = cv2.VideoCapture(0)
+        while True:
+            ret, frame = cap.read()
+            if not ret:
+                break
 
-                # Display the frame (for debugging purposes)
-                cv2.imshow('Alarm', frame)
-                if cv2.waitKey(1) & 0xFF == ord('q'):
-                    break
+            if self.detect_eyes(frame):
+                self.root.ids.status_label.text = "Open eyes detected. Alarm stopped."
+                self.stop_alarm()
+                break
+            else:
+                self.root.ids.status_label.text = "No open eyes detected. Alarm continues..."
 
-            cap.release()
-            cv2.destroyAllWindows()
-            break
+            if cv2.waitKey(1) & 0xFF == ord('q'):
+                break
 
-        time.sleep(30)  # Check the time every 30 seconds
+        cap.release()
+        cv2.destroyAllWindows()
 
 if __name__ == "__main__":
-    main()
+    AlarmApp().run()
