@@ -3,7 +3,7 @@ import time
 import pygame
 
 def detect_eyes(frame):
-    # Load the pre-trained Haar Cascade for eye detection
+    
     eye_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_eye.xml')
 
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
@@ -12,20 +12,20 @@ def detect_eyes(frame):
     return len(eyes) > 0
 
 def play_alarm():
-    # Initialize pygame mixer
+ 
     pygame.mixer.init()
-    # Load the sound file
+   
     pygame.mixer.music.load('alarmring.mp3')
-    # Play the sound
-    pygame.mixer.music.play(-1)  # -1 means loop indefinitely
+  
+    pygame.mixer.music.play(-1) 
 
 def stop_alarm():
-    # Stop the alarm sound
+ 
     pygame.mixer.music.stop()
 
 def main():
-    # Set the time for the alarm
-    alarm_time = "01:53"  # Change this to your desired alarm time
+    
+    alarm_time = input("Enter the alarm time in HH:MM format (24-hour clock): ") 
     print("Alarm set for", alarm_time)
 
     while True:
