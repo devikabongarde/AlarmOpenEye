@@ -47,38 +47,43 @@ class AlarmApp(App):
             self.activate_webcam()
 
     def activate_webcam(self):
-        # Countdown requirement for keeping eyes open
-        cap = cv2.VideoCapture(0)
-        required_open_time = 5  # Required time (seconds) to keep eyes open
-        countdown = required_open_time
+        # Initialize webcam and countdown
+        self.cap = cv2.VideoCapture(0)
+        self.required_open_time = 5  # Required time (seconds) to keep eyes open
+        self.countdown = self.required_open_time
+        Clock.schedule_interval(self.update_webcam_frame, 1)  # Check every second
 
-        while self.alarm_ringing:
-            ret, frame = cap.read()
-            if not ret:
-                break
+    def update_webcam_frame(self, dt):
+        # Capture webcam frame
+        ret, frame = self.cap.read()
+        if not ret:
+            return False
 
-            if self.detect_eyes(frame):
-                # Decrease countdown if eyes are detected open
-                countdown -= 1
-                Clock.schedule_once(lambda dt: self.update_countdown_label(countdown))
-                time.sleep(1)
-                if countdown == 0:
-                    # Stop alarm when countdown reaches zero
-                    self.update_status_label("Open eyes detected. Alarm stopped.")
-                    self.stop_alarm()
-                    break
-            else:
-                # Reset countdown if eyes close
-                countdown = required_open_time
-                Clock.schedule_once(lambda dt: self.update_countdown_label(countdown, reset=True))
+        if self.detect_eyes(frame):
+            # Decrease countdown if eyes are detected open
+            self.countdown -= 1
+            self.update_countdown_label(self.countdown)
+            if self.countdown == 0:
+                # Stop alarm when countdown reaches zero
+                self.update_status_label("Open eyes detected. Alarm stopped.")
+                self.stop_alarm()
+                self.cap.release()
+                cv2.destroyAllWindows()
+                self.clear_countdown_label()
+                return False  # Stop scheduling this method
+        else:
+            # Reset countdown if eyes close
+            self.countdown = self.required_open_time
+            self.update_countdown_label(self.countdown, reset=True)
 
-            if cv2.waitKey(1) & 0xFF == ord('q'):
-                break
+        # Exit loop if user presses 'q'
+        if cv2.waitKey(1) & 0xFF == ord('q'):
+            self.cap.release()
+            cv2.destroyAllWindows()
+            self.clear_countdown_label()
+            return False  # Stop scheduling this method
 
-        cap.release()
-        cv2.destroyAllWindows()
-        Clock.schedule_once(lambda dt: self.clear_countdown_label())
-        Clock.schedule_interval(self.check_alarms, 1)  # Resume checking alarms
+        return True  # Continue scheduling
 
     def update_countdown_label(self, countdown, reset=False):
         if reset:
