@@ -39,7 +39,7 @@ pip install opencv-python pygame soundfile kivy kivymd
 
 3. **Run the Application**:
     ```sh
-    python main.py
+    python alarm.py
     ```
 
 ## Usage
