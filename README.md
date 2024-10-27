@@ -12,14 +12,16 @@ Welcome to **AlarmOpenEye** – the revolutionary no-snooze alarm that ensures y
 
 Ensure you have the following libraries installed to run AlarmOpenEye:
 
-- `cv2` (OpenCV)
+- `cv2`
 - `pygame`
 - `soundfile`
+- `kivy`
+- `kivymd`
 
 Install these libraries effortlessly with pip:
 
 ```sh
-pip install opencv-python pygame soundfile
+pip install opencv-python pygame soundfile kivy kivymd
 ```
 
 ## Installation
@@ -48,7 +50,7 @@ pip install opencv-python pygame soundfile
 
 ## Future Improvements
 
-We're constantly evolving! Here's what's coming next:
+Constantly evolving! Here's what's coming next:
 
 - **Mobile App**: Bringing the same powerful functionality to your mobile devices.
 - **Customizable Alarm Times**: Set multiple alarms to fit your schedule.
