@@ -1,0 +1,63 @@
+#:kivy 2.1.0
+
+BoxLayout:
+	orientation: 'vertical'
+	padding: 20
+	spacing: 10
+
+	Label:
+		text: "AlarmOpenEye with Eye Detection"
+		font_size: 24
+		size_hint_y: None
+		height: 40
+
+	Label:
+		text: "Select Alarm Time"
+		font_size: 18
+		size_hint_y: None
+		height: 30
+
+	BoxLayout:
+		orientation: 'horizontal'
+		size_hint_y: None
+		height: 40
+
+		Spinner:
+			id: hour_spinner
+			text: 'Hour'
+			values: [f"{i:02d}" for i in range(24)]
+			size_hint_x: 0.4
+
+		Spinner:
+			id: minute_spinner
+			text: 'Minute'
+			values: [f"{i:02d}" for i in range(60)]
+			size_hint_x: 0.4
+
+	Button:
+		text: "Add Alarm"
+		font_size: 18
+		size_hint_y: None
+		height: 50
+		on_release:
+			app.add_alarm(f"{hour_spinner.text}:{minute_spinner.text}")
+			
+	Label:
+		id: status_label
+		text: "Status: No alarms set."
+		font_size: 16
+		size_hint_y: None
+		height: 30
+
+	Label:
+		id: countdown_label
+		text: ""
+		font_size: 20
+		size_hint_y: None
+		height: 30
+
+	BoxLayout:
+		orientation: 'vertical'
+		id: alarm_list
+		size_hint_y: None
+		height: self.minimum_height
